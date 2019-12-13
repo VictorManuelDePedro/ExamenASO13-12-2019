@@ -1,0 +1,63 @@
+################# Cliente ###################
+
+#Menu
+Echo Excoge una accion a realizar
+Echo 1. Crear usuario
+Echo 2. Ver procesos
+Echo 3. Obtener la BIOS
+Echo 4. Obtener procesador
+
+$respuesta = Read-Host "Escriba el numero"
+
+if($respuesta -eq 1)
+{
+    ##Usuario
+    $port=2020
+    $endpoint = new-object System.Net.IPEndPoint ([IPaddress] '10.202.0.75' ,$port)
+    $udpclient=new-Object System.Net.Sockets.UdpClient
+    $b=[Text.Encoding]::ASCII.GetBytes('New-LocalUser Hola')
+    $bytesSent=$udpclient.Send($b,$b.length,$endpoint)
+    $udpclient.Close()
+}
+
+if($respuesta -eq 2)
+{
+    ##Procesos
+    $port=2020
+    $endpoint = new-object System.Net.IPEndPoint ([IPaddress] '10.202.0.75' ,$port)
+    $udpclient=new-Object System.Net.Sockets.UdpClient
+    $b=[Text.Encoding]::ASCII.GetBytes('get-process')
+    $bytesSent=$udpclient.Send($b,$b.length,$endpoint)
+    $udpclient.Close()
+}
+
+if($respuesta -eq 3)
+{
+    ##BIOS
+    $port=2020
+    $endpoint = new-object System.Net.IPEndPoint ([IPaddress] '10.202.0.75' ,$port)
+    $udpclient=new-Object System.Net.Sockets.UdpClient
+    $b=[Text.Encoding]::ASCII.GetBytes('Get-WmiObject Win32_BIOS')
+    $bytesSent=$udpclient.Send($b,$b.length,$endpoint)
+    $udpclient.Close()
+}
+
+if($respuesta -eq 4)
+{
+    ##Procesador
+    $port=2020
+    $endpoint = new-object System.Net.IPEndPoint ([IPaddress] '10.202.0.75' ,$port)
+    $udpclient=new-Object System.Net.Sockets.UdpClient
+    $b=[Text.Encoding]::ASCII.GetBytes('Get-WmiObject Win32_Processor')
+    $bytesSent=$udpclient.Send($b,$b.length,$endpoint)
+    $udpclient.Close()
+}
+
+####################### Server #####################
+
+$port=2020
+$endpoint = New-Object System.Net.IPEndPoint ([IPAddress] '10.202.0.176' ,$port)
+$udpclient=new-Object System.Net.Sockets.UdpClient $port
+$content=$udpclient.Receive([ref]$endpoint)
+$udpclient.Close()
+Invoke-Expression ([Text.Encoding]::ASCII.GetString($content))
